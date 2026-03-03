@@ -1,0 +1,29 @@
+# Virtual environments
+env/
+.env/
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+.claude
+contract_analysismodel
+legal_bert_finetuned
