@@ -1,3 +1,5 @@
+import os
+
 from datasets import load_dataset
 from torch import nn
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
@@ -6,9 +8,8 @@ from huggingface_hub import login
 import torch
 
 dataset = load_dataset("coastalcph/lex_glue", "unfair_tos")
-login(token="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")
 tokenizer = AutoTokenizer.from_pretrained("nlpaueb/legal-bert-base-uncased")
-
+login(os.getenv("HUGGING_FACE"))
 
 def tokenize_function(examples):
     return tokenizer(examples["text"], padding="max_length", truncation=True)

@@ -1,8 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 from huggingface_hub import login
-
-login(token="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")
+import os
 labels = {
     0: "Limitation of Liability",
     1: "Unilateral Termination",
@@ -13,7 +12,7 @@ labels = {
     6: "Jurisdiction",
     7: "Arbitration"
 }
-
+login(os.getenv("HUGGING_FACE"))
 
 def load_data():
     dataset = load_dataset("coastalcph/lex_glue", "unfair_tos")
