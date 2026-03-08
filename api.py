@@ -1,5 +1,5 @@
 from database import Session, User, SearchHistory
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -135,6 +135,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 @app.get("/download/{filename}")
 def get_file(
         filename: str,
+        background_tasks: BackgroundTasks,
         current_user: str = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
@@ -159,6 +160,7 @@ def get_file(
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="File not found")
 
+    background_tasks.add_task(os.remove, full_path)
     return FileResponse(full_path)
 
 
@@ -215,6 +217,8 @@ def analyze_contract(
     except Exception as e:
         if os.path.exists(temp_filepath):
             os.remove(temp_filepath)
+        if os.path.exists(output_pdf_name):
+            os.remove(output_pdf_name)
         logger.error("Error processing file '%s': %s", file.filename, e, exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing the file")
 
@@ -235,3 +239,27 @@ def get_user_history(
         "total_searches": len(past_searches),
         "history": past_searches
     }
+
+
+@app.post("/logout")
+def logout(
+        current_user: str = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    user_record = db.query(User).filter(User.username == current_user).first()
+    if not user_record:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    pending = db.query(SearchHistory).filter(
+        SearchHistory.user_id == user_record.id,
+        SearchHistory.download_url.isnot(None)
+    ).all()
+
+    deleted = 0
+    for record in pending:
+        full_path = os.path.join(ANALYZED_DIR, record.download_url)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+            deleted += 1
+
+    return {"message": "Logged out successfully", "files_deleted": deleted}

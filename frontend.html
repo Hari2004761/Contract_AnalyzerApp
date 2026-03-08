@@ -1117,7 +1117,14 @@ function enterApp(username) {
   document.getElementById('sidebar-avatar').textContent   = username[0].toUpperCase();
 }
 
-function doLogout() {
+async function doLogout() {
+  try {
+    await fetch(`${API}/logout`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${TOKEN}` }
+    });
+  } catch { /* ignore network errors — still log out locally */ }
+
   TOKEN = null; lastDownloadUrl = null;
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display  = 'none';
