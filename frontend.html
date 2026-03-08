@@ -251,6 +251,45 @@ body {
 }
 .btn-primary:active { transform: translateY(0); }
 
+.consent-field {
+  margin-bottom: 1.25rem;
+  padding: 0.9rem 1rem;
+  background: rgba(59,110,248,0.04);
+  border: 1px solid rgba(59,110,248,0.15);
+  border-radius: 9px;
+}
+.consent-label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text2);
+  line-height: 1.55;
+}
+.consent-label input[type=checkbox] {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0.85rem 1.1rem;
+  background: rgba(59,110,248,0.05);
+  border: 1px solid rgba(59,110,248,0.15);
+  border-radius: 9px;
+  margin-bottom: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text2);
+  line-height: 1.55;
+}
+.privacy-notice-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
 .alert {
   padding: 0.7rem 1rem;
   border-radius: 8px;
@@ -873,6 +912,12 @@ body {
           <label>Password</label>
           <input type="password" id="signup-password" placeholder="••••••••">
         </div>
+        <div class="consent-field">
+          <label class="consent-label">
+            <input type="checkbox" id="signup-consent">
+            <span>I understand that uploaded contracts may contain personal or sensitive data, and I consent to Clausify processing the document content using AI to identify risks and clauses. Files are processed temporarily and not shared with third parties.</span>
+          </label>
+        </div>
         <button class="btn-primary" onclick="doSignup()">Create Account →</button>
         <div class="alert error"   id="signup-error"></div>
         <div class="alert success" id="signup-success"></div>
@@ -931,6 +976,11 @@ body {
       <div class="page-header">
         <h2>Contract Analyzer</h2>
         <p>Upload a PDF contract to identify risks, liability clauses, and unfair terms.</p>
+      </div>
+
+      <div class="privacy-notice">
+        <span class="privacy-notice-icon">🔒</span>
+        <span>Your contract may contain personal data. By uploading, you confirm your earlier consent to Clausify processing the document content using AI. Files are processed temporarily and not shared with third parties.</span>
       </div>
 
       <div class="card card-pad" style="margin-bottom:1.75rem;">
@@ -1035,17 +1085,19 @@ async function doLogin() {
 async function doSignup() {
   const u = document.getElementById('signup-username').value.trim();
   const p = document.getElementById('signup-password').value;
+  const consent = document.getElementById('signup-consent').checked;
   const err = document.getElementById('signup-error');
   const ok  = document.getElementById('signup-success');
   err.classList.remove('show'); ok.classList.remove('show');
 
   if (!u || !p) { showErr(err, 'Please fill in both fields.'); return; }
+  if (!consent) { showErr(err, 'You must accept the data processing consent to create an account.'); return; }
 
   try {
     const res = await fetch(`${API}/signup/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: u, password: p })
+      body: JSON.stringify({ username: u, password: p, consent_given: true })
     });
     const data = await res.json();
     if (res.ok) {

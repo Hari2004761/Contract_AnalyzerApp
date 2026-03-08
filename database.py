@@ -2,7 +2,7 @@ import os
 import datetime
 from datetime import timezone
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 from dotenv import load_dotenv
@@ -21,6 +21,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    consent_given = Column(Boolean, nullable=True)
+    consent_timestamp = Column(DateTime(timezone=True), nullable=True)
 
     history = relationship("SearchHistory", back_populates="owner")
 

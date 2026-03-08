@@ -1,5 +1,4 @@
 import os
-
 from datasets import load_dataset
 from torch import nn
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer

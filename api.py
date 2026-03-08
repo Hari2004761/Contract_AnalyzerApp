@@ -50,6 +50,7 @@ def get_db():
 class UserCreate(BaseModel):
     username: str
     password: str
+    consent_given: bool
 
 
 @app.post("/signup/")
@@ -57,6 +58,9 @@ def create_user(
         user: UserCreate,
         db: Session = Depends(get_db)
 ):
+    if not user.consent_given:
+        raise HTTPException(status_code=400, detail="You must consent to data processing to create an account.")
+
     existing_user = db.query(User).filter(User.username == user.username).first()
 
     if existing_user:
@@ -64,7 +68,12 @@ def create_user(
 
     hashed_password = password.hash(user.password)
 
-    new_user = User(username=user.username, password_hash=hashed_password)
+    new_user = User(
+        username=user.username,
+        password_hash=hashed_password,
+        consent_given=True,
+        consent_timestamp=datetime.now(timezone.utc)
+    )
     db.add(new_user)
     db.commit()
 
