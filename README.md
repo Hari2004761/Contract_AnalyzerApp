@@ -182,11 +182,3 @@ pytest test_api.py -v
 GitHub Actions automatically runs the full test suite on every push to `main`. The CI pipeline uses SQLite in-memory as the test database so Supabase is never touched during testing.
 
 [![CI](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml/badge.svg)](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml)
-
----
-
-## Author
-
-**Hari Narayanan Swaminathan**  
-Computer Science Engineering Student — University of Debrecen, Hungary  
-[GitHub](https://github.com/Hari2004761)
