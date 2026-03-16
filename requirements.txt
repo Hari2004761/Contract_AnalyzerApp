@@ -3,8 +3,8 @@ uvicorn
 sqlalchemy
 psycopg2-binary
 PyJWT
-bcrypt
-passlib
+bcrypt==4.0.1
+passlib==1.7.4
 python-multipart
 python-dotenv
 pdfplumber
@@ -16,3 +16,4 @@ fpdf2
 pytest
 httpx
 datasets
+PyMuPDF

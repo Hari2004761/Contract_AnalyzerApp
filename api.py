@@ -28,8 +28,6 @@ from processpdf import process_pdf
 import jwt
 from datetime import datetime, timedelta, timezone
 
-
-
 ANALYZED_DIR = os.path.dirname(os.path.abspath(__file__))
 MAX_FILE_SIZE = 10 * 1024 * 1024
 ALLOWED_CONTENT_TYPES = {"application/pdf"}

@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn.functional as F
 
-model_path = "./contract_analysismodel"
+model_path = "Harinarayanan2994/clausify-contract-analyzer"
 print(f"⏳ Loading model from {model_path}...")
 
 try:
