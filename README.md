@@ -8,6 +8,8 @@ Clausify is a full-stack web application that automatically detects risky clause
 
 ---
 
+## Screenshots
+
 ### Login Page
 ![Login Page](screenshots/img.png)
 
@@ -21,17 +23,13 @@ Clausify is a full-stack web application that automatically detects risky clause
 
 ## Features
 
-- **AI Risk Detection** — Fine-tuned legal transformer model trained on the LexGLUE `unfair_tos` benchmark, achieving **77.2% weighted F1 score** across 8 contract risk categories
-- **8 Risk Categories** — Limitation of Liability, Unilateral Termination, Unilateral Change, Content Removal, Contract by Using, Choice of Law, Jurisdiction, Arbitration
+- **AI Risk Detection** — Fine-tuned legal transformer on LexGLUE `unfair_tos`, achieving **77.2% weighted F1 score** across 8 contract risk categories
 - **Secure Authentication** — JWT-based auth with bcrypt password hashing and server-side password validation
-- **Rate Limiting** — Brute force protection on authentication endpoints
-- **File Ownership Verification** — Users can only download their own analyzed files
-- **Automatic File Cleanup** — Analyzed PDFs are deleted from the server immediately after download or when the user logs out, ensuring no files accumulate on disk
+- **Automatic File Cleanup** — Analyzed PDFs deleted immediately after download or on logout
 - **User Consent** — Explicit consent collected at signup since the app processes personal documents
-- **Path Traversal Protection** — Filename sanitization on all file endpoints
-- **Input Validation** — PDF-only uploads enforced, 10MB file size limit
-- **CI Pipeline** — GitHub Actions runs the full pytest suite on every push
-- **Dockerized** — Containerized for consistent deployment across environments
+- **Rate Limiting** — Brute force protection on authentication endpoints
+- **CI Pipeline** — GitHub Actions runs pytest on every push
+- **Dockerized** — Containerized for consistent deployment
 
 ---
 
@@ -119,15 +117,12 @@ ContractAnalyzerApp/
 
 ## Security Features
 
-- **JWT Authentication** — all sensitive endpoints protected, token required in Authorization header
-- **Server-side Password Validation** — enforced on the backend regardless of how the API is called
-- **Rate Limiting** — authentication endpoints protected against brute force attacks
-- **File Ownership Check** — `/download/` verifies the requesting user owns the file before serving it
-- **Path Traversal Protection** — `os.path.basename()` + directory validation prevents `../../` attacks
-- **PDF-only Uploads** — content-type validation rejects non-PDF files
-- **10MB File Size Limit** — prevents abuse via oversized uploads
-- **Environment Variables** — secrets stored in `.env`, never committed to version control
-- **Generic Error Messages** — internal errors logged privately, never leaked to the client
+- **JWT Authentication** — all sensitive endpoints require a valid token
+- **File Ownership Check** — users can only download their own files
+- **Path Traversal Protection** — prevents `../../` attacks on file endpoints
+- **Input Validation** — PDF-only uploads, 10MB size limit
+- **Rate Limiting** — authentication endpoints protected against brute force
+- **Secrets Management** — all credentials stored in environment variables, never committed
 
 ---
 
@@ -221,11 +216,3 @@ pytest test_api.py -v
 GitHub Actions automatically runs the full test suite on every push to `main`. The CI pipeline uses SQLite in-memory as the test database so Supabase is never touched during testing. Railway automatically redeploys on every push to `main` when tests pass.
 
 [![CI](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml/badge.svg)](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml)
-
----
-
-## Author
-
-**Hari Narayanan Swaminathan**
-Computer Science Engineering Student — University of Debrecen, Hungary
-[GitHub](https://github.com/Hari2004761)
