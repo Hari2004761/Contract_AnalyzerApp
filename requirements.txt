@@ -1,5 +1,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.2.0+cpu
+torch==2.5.1+cpu
+transformers==5.1.0
+numpy<2
 fastapi
 uvicorn
 sqlalchemy
@@ -11,8 +13,6 @@ python-multipart
 python-dotenv
 pdfplumber
 PyMuPDF
-transformers
-numpy
 scikit-learn
 fpdf2
 pytest
@@ -20,4 +20,3 @@ httpx
 datasets
 huggingface_hub
 safetensors
-
