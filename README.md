@@ -2,6 +2,12 @@
 
 Clausify is a full-stack web application that automatically detects risky clauses in legal contracts using a fine-tuned legal NLP model. Upload a PDF contract and get an instant breakdown of risk categories, confidence scores, and the exact clause text that triggered each flag.
 
+**Live Demo:** https://contractanalyzerapp-production.up.railway.app
+
+**Demo Video:** Coming soon
+
+---
+
 ## Screenshots
 
 ![Clausify Screenshot 1](screenshots/img.png)
@@ -14,13 +20,15 @@ Clausify is a full-stack web application that automatically detects risky clause
 
 - **AI Risk Detection** — Fine-tuned legal transformer model trained on the LexGLUE `unfair_tos` benchmark, achieving **77.2% weighted F1 score** across 8 contract risk categories
 - **8 Risk Categories** — Limitation of Liability, Unilateral Termination, Unilateral Change, Content Removal, Contract by Using, Choice of Law, Jurisdiction, Arbitration
-- **Secure Authentication** — JWT-based auth with bcrypt password hashing
+- **Secure Authentication** — JWT-based auth with bcrypt password hashing and server-side password validation
+- **Rate Limiting** — Brute force protection on authentication endpoints
 - **File Ownership Verification** — Users can only download their own analyzed files
 - **Automatic File Cleanup** — Analyzed PDFs are deleted from the server immediately after download or when the user logs out, ensuring no files accumulate on disk
 - **User Consent** — Explicit consent collected at signup since the app processes personal documents
 - **Path Traversal Protection** — Filename sanitization on all file endpoints
 - **Input Validation** — PDF-only uploads enforced, 10MB file size limit
 - **CI Pipeline** — GitHub Actions runs the full pytest suite on every push
+- **Dockerized** — Containerized for consistent deployment across environments
 
 ---
 
@@ -35,9 +43,11 @@ Clausify is a full-stack web application that automatically detects risky clause
 | Password Hashing | bcrypt + passlib |
 | NLP Model | HuggingFace Transformers |
 | Training Data | LexGLUE `unfair_tos` dataset |
+| PDF Processing | pdfplumber + PyMuPDF |
 | Testing | pytest |
 | CI | GitHub Actions |
-| Containerization | Docker (coming soon) |
+| Containerization | Docker |
+| Deployment | Railway |
 
 ---
 
@@ -75,11 +85,13 @@ ContractAnalyzerApp/
 ├── database.py             # SQLAlchemy models (User, SearchHistory)
 ├── processpdf.py           # PDF processing + NLP model inference
 ├── evaluate.py             # Model evaluation script (LexGLUE benchmark)
-├── app.html                # Frontend — single file SaaS UI
+├── frontend.html           # Frontend — single file SaaS UI
 ├── test_api.py             # pytest test suite (8 tests)
 ├── conftest.py             # pytest fixtures and test database setup
+├── Dockerfile              # Docker container configuration
+├── .dockerignore           # Files excluded from Docker build
 ├── requirements.txt        # Production dependencies
-├── requirements-test.txt   # CI/testing dependencies
+├── requirements-test.txt   # CI/testing dependencies (excludes torch)
 ├── .github/
 │   └── workflows/
 │       └── test.yml        # GitHub Actions CI pipeline
@@ -92,6 +104,7 @@ ContractAnalyzerApp/
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
+| GET | `/` | No | Serves the frontend |
 | POST | `/signup/` | No | Register a new user |
 | POST | `/login` | No | Login and receive JWT token |
 | POST | `/analyze/` | Yes | Upload PDF and get risk analysis |
@@ -104,6 +117,8 @@ ContractAnalyzerApp/
 ## Security Features
 
 - **JWT Authentication** — all sensitive endpoints protected, token required in Authorization header
+- **Server-side Password Validation** — enforced on the backend regardless of how the API is called
+- **Rate Limiting** — authentication endpoints protected against brute force attacks
 - **File Ownership Check** — `/download/` verifies the requesting user owns the file before serving it
 - **Path Traversal Protection** — `os.path.basename()` + directory validation prevents `../../` attacks
 - **PDF-only Uploads** — content-type validation rejects non-PDF files
@@ -115,7 +130,7 @@ ContractAnalyzerApp/
 
 ## Running Locally
 
-**Prerequisites:** Python 3.10+, a Supabase account
+**Prerequisites:** Python 3.11+, a Supabase account
 
 **1. Clone the repo:**
 ```bash
@@ -142,6 +157,7 @@ Create a `.env` file in the project root:
 SECRET_KEY=your_secret_key_here
 DATABASE_URL=your_supabase_connection_string
 ALGORITHM=HS256
+HF_TOKEN=your_huggingface_token
 ```
 
 **5. Run the backend:**
@@ -151,7 +167,27 @@ uvicorn api:app --reload
 
 **6. Open the frontend:**
 
-Open `app.html` in your browser. Make sure the API URL in the frontend matches your backend address.
+Visit `http://localhost:8000` in your browser.
+
+---
+
+## Running with Docker
+
+**1. Build the image:**
+```bash
+docker build \
+  --build-arg SECRET_KEY=your_secret_key \
+  --build-arg DATABASE_URL=your_supabase_url \
+  --build-arg HF_TOKEN=your_huggingface_token \
+  -t clausify .
+```
+
+**2. Run the container:**
+```bash
+docker run -p 8000:8000 clausify
+```
+
+**3. Visit:** `http://localhost:8000`
 
 ---
 
@@ -179,6 +215,14 @@ pytest test_api.py -v
 
 ## CI/CD
 
-GitHub Actions automatically runs the full test suite on every push to `main`. The CI pipeline uses SQLite in-memory as the test database so Supabase is never touched during testing.
+GitHub Actions automatically runs the full test suite on every push to `main`. The CI pipeline uses SQLite in-memory as the test database so Supabase is never touched during testing. Railway automatically redeploys on every push to `main` when tests pass.
 
 [![CI](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml/badge.svg)](https://github.com/Hari2004761/Contract_AnalyzerApp/actions/workflows/test.yml)
+
+---
+
+## Author
+
+**Hari Narayanan Swaminathan**
+Computer Science Engineering Student — University of Debrecen, Hungary
+[GitHub](https://github.com/Hari2004761)
