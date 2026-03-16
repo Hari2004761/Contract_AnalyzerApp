@@ -21,6 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("frontend.html")
+
+
 load_dotenv()
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
