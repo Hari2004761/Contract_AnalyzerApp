@@ -8,11 +8,14 @@ Clausify is a full-stack web application that automatically detects risky clause
 
 ---
 
-## Screenshots
+### Login Page
+![Login Page](screenshots/img.png)
 
-![Clausify Screenshot 1](screenshots/img.png)
-![Clausify Screenshot 2](screenshots/img_1.png)
-![Clausify Screenshot 3](screenshots/img_2.png)
+### Contract Upload
+![Contract Upload](screenshots/img_2.png)
+
+### Risk Analysis Results
+![Risk Analysis Results](screenshots/img_1.png)
 
 ---
 
