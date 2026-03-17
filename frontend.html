@@ -1244,13 +1244,15 @@
             }
 
             .auth-mobile-brand {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin-bottom: 1.5rem;
-                font-size: 1.4rem;
+                display: block;
+                text-align: center;
+                margin: 0 auto 1.5rem auto;
+                font-family: 'Poppins', sans-serif;
+                font-size: 2.5rem;
                 font-weight: 700;
                 color: var(--text);
+                letter-spacing: -0.02em;
+                width: 100%;
             }
 
             .field input {
@@ -1313,10 +1315,7 @@
     </div>
 
     <div class="auth-right">
-        <div class="auth-mobile-brand">
-            <div class="auth-brand-icon">⚖️</div>
-            <span class="auth-brand-name">Clausify</span>
-        </div>
+        <div class="auth-mobile-brand">Clausify</div>
         <div class="auth-box">
             <div class="auth-tabs">
                 <button class="auth-tab-btn active" onclick="switchTab('login')">Sign In</button>
