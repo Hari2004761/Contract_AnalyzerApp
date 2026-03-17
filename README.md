@@ -1,4 +1,4 @@
-# Clausify — AI-Powered Contract Risk Analyzer
+# Clausify AI Powered Contract Risk Analyzer
 
 Clausify is a full-stack web application that automatically detects risky clauses in legal contracts using a fine-tuned legal NLP model. Upload a PDF contract and get an instant breakdown of risk categories, confidence scores, and the exact clause text that triggered each flag.
 
