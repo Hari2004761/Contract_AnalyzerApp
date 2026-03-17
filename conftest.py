@@ -16,7 +16,7 @@ Key design decisions
 import glob as _glob
 import os
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 # ── 1. Env-var overrides (must come before any app import) ───────────────────
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
@@ -115,3 +115,9 @@ def get_token(client):
         return r.json()["access_token"]
 
     return _get_token
+
+
+@pytest.fixture(autouse=True)
+def disable_rate_limiting():
+    with patch("slowapi.Limiter._check_request_limit"):
+        yield

@@ -20,3 +20,4 @@ httpx
 datasets
 huggingface_hub
 safetensors
+slowapi

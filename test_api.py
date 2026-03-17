@@ -93,6 +93,26 @@ def test_signup_duplicate_username(client):
     assert second.status_code == 400
 
 
+def test_signup_password_too_short(client):
+    r = client.post("/signup/", json={"username": "test_short", "password": "Ab1!", "consent_given": True})
+    assert r.status_code == 422
+
+
+def test_signup_password_no_uppercase(client):
+    r = client.post("/signup/", json={"username": "test_upper", "password": "abcdef1!", "consent_given": True})
+    assert r.status_code == 422
+
+
+def test_signup_password_no_number(client):
+    r = client.post("/signup/", json={"username": "test_number", "password": "Abcdefg!", "consent_given": True})
+    assert r.status_code == 422
+
+
+def test_signup_password_no_special_char(client):
+    r = client.post("/signup/", json={"username": "test_special", "password": "Abcdefg1", "consent_given": True})
+    assert r.status_code == 422
+
+
 # ── Test 3 ────────────────────────────────────────────────────────────────────
 
 def test_login_correct_credentials(client):

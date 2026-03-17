@@ -1,17 +1,29 @@
 from database import Session, User, SearchHistory
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Request
 from fastapi.responses import FileResponse
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from passlib.context import CryptContext
 import os
 import uuid
 import logging
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Contract Risk Analyzer API", version="1.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    request.state.view_rate_limit = None
+    response = await call_next(request)
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,14 +63,44 @@ def get_db():
         db.close()
 
 
+def get_ip_and_username(request: Request) -> str:
+    ip = get_remote_address(request)
+    try:
+        import asyncio
+        body = asyncio.get_event_loop().run_until_complete(
+            request.json()
+        )
+        username = body.get("username", "unknown")
+    except:
+        username = "unknown"
+    return f"{ip}:{username}"
+
+
 class UserCreate(BaseModel):
     username: str
     password: str
     consent_given: bool
 
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        if not any(c.isupper() for c in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+        if not any(c.islower() for c in v):
+            raise ValueError("Password must contain at least one lowercase letter")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Password must contain at least one number")
+        if not any(c in "!@#$%^&*" for c in v):
+            raise ValueError("Password must contain at least one special character (!@#$%^&*)")
+        return v
+
 
 @app.post("/signup/")
+@limiter.limit("10/hour")
 def create_user(
+        request: Request,
         user: UserCreate,
         db: Session = Depends(get_db)
 ):
@@ -96,7 +138,9 @@ class UserLogin(BaseModel):
 
 
 @app.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute", key_func=get_ip_and_username)
+@limiter.limit("20/minute")
+def login(request: Request, user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
 
     if not db_user or not password.verify(user.password, db_user.password_hash):
@@ -169,7 +213,9 @@ def get_file(
 
 
 @app.post("/analyze/")
+@limiter.limit("10/minute")
 def analyze_contract(
+        request: Request,
         file: UploadFile = File(...),
         current_user: str = Depends(get_current_user),
         db: Session = Depends(get_db)

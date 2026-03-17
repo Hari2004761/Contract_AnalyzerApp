@@ -1137,13 +1137,50 @@
             border: 1px solid #fecaca;
         }
 
+        /* ── Elements hidden on desktop, shown on mobile ── */
+        .hamburger-btn { display: none; }
+        .auth-mobile-brand { display: none; }
+        #sidebar-overlay { display: none; }
+
         /* ── Mobile Responsive (max-width: 768px) ── */
         @media (max-width: 768px) {
-            /* Sidebar — hide off-screen */
+            /* Sidebar — slide off-screen, preserves width for open state */
             .sidebar {
                 transform: translateX(-100%);
-                width: 0;
-                overflow: hidden;
+                transition: transform 0.3s ease;
+                z-index: 200;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            /* Sidebar overlay */
+            #sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 150;
+            }
+
+            #sidebar-overlay.visible {
+                display: block;
+            }
+
+            /* Hamburger button */
+            .hamburger-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: var(--text);
+                font-size: 1.4rem;
+                cursor: pointer;
+                padding: 0.25rem 0.5rem;
+                margin-right: 0.75rem;
+                flex-shrink: 0;
             }
 
             /* Topbar — span full width */
@@ -1188,14 +1225,40 @@
             }
 
             .auth-left {
-                width: 100%;
-                min-height: auto;
-                padding: 2rem 1.5rem;
+                display: none;
             }
 
             .auth-right {
                 width: 100%;
-                padding: 2rem 1.5rem;
+                min-height: 100vh;
+                padding: 2rem 1.25rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .auth-box {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .auth-mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: var(--text);
+            }
+
+            .field input {
+                width: 100%;
+            }
+
+            .auth-box .btn-primary {
+                width: 100%;
             }
 
             /* Font sizes — reduce headings */
@@ -1250,6 +1313,10 @@
     </div>
 
     <div class="auth-right">
+        <div class="auth-mobile-brand">
+            <div class="auth-brand-icon">⚖️</div>
+            <span class="auth-brand-name">Clausify</span>
+        </div>
         <div class="auth-box">
             <div class="auth-tabs">
                 <button class="auth-tab-btn active" onclick="switchTab('login')">Sign In</button>
@@ -1331,8 +1398,11 @@
         </div>
     </nav>
 
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- Topbar -->
     <div class="topbar">
+        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
         <div class="topbar-title" id="topbar-title">Analyze Contract</div>
         <div class="topbar-right">
 
@@ -1536,6 +1606,17 @@
         document.getElementById(`page-${page}`).classList.add('active');
         document.getElementById('topbar-title').textContent = pageTitles[page] || page;
         if (page === 'history') loadHistory();
+        closeSidebar();
+    }
+
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('visible');
+    }
+
+    function closeSidebar() {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('visible');
     }
 
     // ── File selection ────────────────────────────────────────────────────────────

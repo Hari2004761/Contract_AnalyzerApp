@@ -11,3 +11,4 @@ fpdf2
 pytest
 httpx
 passlib==1.7.4
+slowapi
