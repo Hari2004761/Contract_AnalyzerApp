@@ -1136,6 +1136,86 @@
             color: #991b1b;
             border: 1px solid #fecaca;
         }
+
+        /* ── Mobile Responsive (max-width: 768px) ── */
+        @media (max-width: 768px) {
+            /* Sidebar — hide off-screen */
+            .sidebar {
+                transform: translateX(-100%);
+                width: 0;
+                overflow: hidden;
+            }
+
+            /* Topbar — span full width */
+            .topbar {
+                left: 0;
+            }
+
+            /* Main content — remove sidebar offset */
+            .main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            /* Stats grid — 2 columns */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Stat card values */
+            .stat-value {
+                font-size: 1.4rem;
+            }
+
+            /* Risk cards — reduce padding, allow header to wrap */
+            .risk-item {
+                padding: 1rem;
+            }
+
+            .risk-item-header {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            /* Upload zone — reduce padding */
+            .upload-zone {
+                padding: 1.5rem 1rem;
+            }
+
+            /* Auth screen — stack vertically */
+            .auth-screen {
+                flex-direction: column;
+            }
+
+            .auth-left {
+                width: 100%;
+                min-height: auto;
+                padding: 2rem 1.5rem;
+            }
+
+            .auth-right {
+                width: 100%;
+                padding: 2rem 1.5rem;
+            }
+
+            /* Font sizes — reduce headings */
+            .page-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .auth-left h1 {
+                font-size: 1.6rem;
+            }
+
+            /* History table — horizontal scroll */
+            .history-table {
+                overflow-x: auto;
+            }
+
+            .history-table table {
+                min-width: 520px;
+            }
+        }
     </style>
 </head>
 <body>
