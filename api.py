@@ -10,13 +10,23 @@ import uuid
 import logging
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Contract Risk Analyzer API", version="1.0")
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many attempts. Please wait before trying again."}
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
 
 @app.middleware("http")
@@ -143,17 +153,34 @@ class UserLogin(BaseModel):
 def login(request: Request, user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
 
+    # Check account lockout
+    if db_user and db_user.locked_until:
+        if db_user.locked_until > datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=403,
+                detail="Account locked due to too many failed attempts. Try again later."
+            )
+
+    # Verify credentials
     if not db_user or not password.verify(user.password, db_user.password_hash):
+        if db_user:
+            db_user.failed_login_attempts = (db_user.failed_login_attempts or 0) + 1
+            if db_user.failed_login_attempts >= 5:
+                db_user.locked_until = datetime.now(timezone.utc) + timedelta(hours=1)
+                db_user.failed_login_attempts = 0
+            db.commit()
         raise HTTPException(status_code=401, detail="Invalid Username or Password")
 
-    # JWT Authentication
+    # Successful login — reset lockout state
+    db_user.failed_login_attempts = 0
+    db_user.locked_until = None
+    db.commit()
+
     badge_data = {
         "sub": db_user.username,
         "exp": datetime.now(timezone.utc) + timedelta(hours=1)
     }
-
     access_token = jwt.encode(badge_data, SECRET_KEY, algorithm=ALGORITHM)
-
     return {"access_token": access_token, "token_type": "bearer"}
 
 

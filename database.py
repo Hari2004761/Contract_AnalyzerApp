@@ -23,6 +23,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     consent_given = Column(Boolean, nullable=True)
     consent_timestamp = Column(DateTime(timezone=True), nullable=True)
+    failed_login_attempts = Column(Integer, default=0, nullable=False, server_default="0")
+    locked_until = Column(DateTime(timezone=True), nullable=True)
 
     history = relationship("SearchHistory", back_populates="owner")
 

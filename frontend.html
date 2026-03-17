@@ -1523,6 +1523,8 @@
             if (res.ok) {
                 TOKEN = data.access_token;
                 enterApp(u);
+            } else if (res.status === 429) {
+                showErr(err, 'Too many login attempts. Please wait before trying again.');
             } else {
                 showErr(err, data.detail || 'Login failed.');
             }
@@ -1560,6 +1562,8 @@
                 ok.textContent = 'Account created! You can now sign in.';
                 ok.classList.add('show');
                 setTimeout(() => switchTab('login'), 1500);
+            } else if (res.status === 422) {
+                showErr(err, 'Password must be at least 8 characters and contain an uppercase letter, lowercase letter, number, and special character (!@#$%^&*)');
             } else {
                 showErr(err, data.detail || 'Signup failed.');
             }
